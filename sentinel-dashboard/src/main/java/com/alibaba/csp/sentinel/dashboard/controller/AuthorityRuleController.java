@@ -84,6 +84,7 @@ public class AuthorityRuleController {
         }
         try {
             List<AuthorityRuleEntity> rules = ruleProvider.getRules(app);
+            sentinelApiClient.setAuthorityRuleOfMachine(app, ip, port, rules);
             rules = repository.saveAll(rules);
             return Result.ofSuccess(rules);
         } catch (Throwable throwable) {
@@ -115,7 +116,7 @@ public class AuthorityRuleController {
             return Result.ofFail(-1, "limitApp should be valid");
         }
         if (entity.getStrategy() != RuleConstant.AUTHORITY_WHITE
-            && entity.getStrategy() != RuleConstant.AUTHORITY_BLACK) {
+                && entity.getStrategy() != RuleConstant.AUTHORITY_BLACK) {
             return Result.ofFail(-1, "Unknown strategy (must be blacklist or whitelist)");
         }
         return null;
@@ -188,12 +189,13 @@ public class AuthorityRuleController {
         publishRules(oldEntity.getApp());
         return Result.ofSuccess(id);
     }
-    private void publishRules(/*@NonNull*/ String app)  {
+
+    private void publishRules(/*@NonNull*/ String app) {
         List<AuthorityRuleEntity> rules = repository.findAllByApp(app);
         try {
             rulePublisher.publish(app, rules);
         } catch (Exception e) {
-            logger.error("推送到nacos失败",e);
+            logger.error("推送到nacos失败", e);
         }
     }
 }
