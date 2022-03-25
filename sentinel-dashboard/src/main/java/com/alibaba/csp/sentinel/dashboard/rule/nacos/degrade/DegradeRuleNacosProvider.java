@@ -16,13 +16,12 @@
 package com.alibaba.csp.sentinel.dashboard.rule.nacos.degrade;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.DegradeRuleEntity;
-import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRuleProvider;
 import com.alibaba.csp.sentinel.dashboard.rule.nacos.NacosConfigUtil;
-import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.csp.sentinel.util.StringUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.api.config.ConfigService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +38,8 @@ public class  DegradeRuleNacosProvider implements DynamicRuleProvider<List<Degra
 
     @Autowired
     private ConfigService configService;
-
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public List<DegradeRuleEntity> getRules(String appName) throws Exception {
@@ -48,6 +48,6 @@ public class  DegradeRuleNacosProvider implements DynamicRuleProvider<List<Degra
         if (StringUtil.isEmpty(rules)) {
             return new ArrayList<>();
         }
-        return JSON.parseArray(rules,DegradeRuleEntity.class);
+        return objectMapper.readValue(rules,new TypeReference<List<DegradeRuleEntity>>() { });
     }
 }

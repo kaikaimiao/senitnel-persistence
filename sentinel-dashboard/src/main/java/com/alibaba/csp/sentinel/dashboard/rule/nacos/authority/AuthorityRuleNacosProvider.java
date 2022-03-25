@@ -16,19 +16,19 @@
 package com.alibaba.csp.sentinel.dashboard.rule.nacos.authority;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.AuthorityRuleEntity;
-import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.DegradeRuleEntity;
-import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRuleProvider;
 import com.alibaba.csp.sentinel.dashboard.rule.nacos.NacosConfigUtil;
-import com.alibaba.csp.sentinel.datasource.Converter;
+import com.alibaba.csp.sentinel.slots.block.authority.AuthorityRule;
 import com.alibaba.csp.sentinel.util.StringUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.api.config.ConfigService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @description: 拉取授权规则
@@ -36,19 +36,29 @@ import java.util.List;
  * @create: 2022-03-17 14:40
  */
 @Component("authorityRuleNacosProvider")
-public class  AuthorityRuleNacosProvider implements DynamicRuleProvider<List<AuthorityRuleEntity>> {
+public class AuthorityRuleNacosProvider implements DynamicRuleProvider<List<AuthorityRuleEntity>> {
 
     @Autowired
     private ConfigService configService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
 
     @Override
     public List<AuthorityRuleEntity> getRules(String appName) throws Exception {
         String rules = configService.getConfig(appName + NacosConfigUtil.AUTHORITY_DATA_ID_POSTFIX,
-            NacosConfigUtil.GROUP_ID, 3000);
+                NacosConfigUtil.GROUP_ID, 3000);
         if (StringUtil.isEmpty(rules)) {
             return new ArrayList<>();
         }
-        return JSON.parseArray(rules, AuthorityRuleEntity.class);
+        List<AuthorityRule> list = objectMapper.readValue(rules, new TypeReference<List<AuthorityRule>>() {
+        });
+        return list.stream().map(item -> {
+            AuthorityRuleEntity authorityRule = new AuthorityRuleEntity();
+            authorityRule.setRule(item);
+            authorityRule.setApp(appName);
+            return authorityRule;
+        }).collect(Collectors.toList());
     }
 }

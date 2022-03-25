@@ -15,33 +15,22 @@
  */
 package com.alibaba.csp.sentinel.dashboard.controller.v2;
 
-import java.util.Date;
-import java.util.List;
-
 import com.alibaba.csp.sentinel.dashboard.auth.AuthAction;
-import com.alibaba.csp.sentinel.dashboard.auth.AuthService;
 import com.alibaba.csp.sentinel.dashboard.auth.AuthService.PrivilegeType;
-import com.alibaba.csp.sentinel.util.StringUtil;
-
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
+import com.alibaba.csp.sentinel.dashboard.domain.Result;
 import com.alibaba.csp.sentinel.dashboard.repository.rule.InMemoryRuleRepositoryAdapter;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRuleProvider;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRulePublisher;
-import com.alibaba.csp.sentinel.dashboard.domain.Result;
-
+import com.alibaba.csp.sentinel.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Flow rule controller (v2).
@@ -58,6 +47,12 @@ public class FlowControllerV2 {
     @Autowired
     private InMemoryRuleRepositoryAdapter<FlowRuleEntity> repository;
 
+    //    @Autowired
+//    @Qualifier("flowRuleDefaultProvider")
+//    private DynamicRuleProvider<List<FlowRuleEntity>> ruleProvider;
+//    @Autowired
+//    @Qualifier("flowRuleDefaultPublisher")
+//    private DynamicRulePublisher<List<FlowRuleEntity>> rulePublisher;
     @Autowired
     @Qualifier("flowRuleNacosProvider")
     private DynamicRuleProvider<List<FlowRuleEntity>> ruleProvider;
@@ -135,7 +130,7 @@ public class FlowControllerV2 {
     }
 
     @PostMapping("/rule")
-    @AuthAction(value = AuthService.PrivilegeType.WRITE_RULE)
+    @AuthAction(value = PrivilegeType.WRITE_RULE)
     public Result<FlowRuleEntity> apiAddFlowRule(@RequestBody FlowRuleEntity entity) {
 
         Result<FlowRuleEntity> checkResult = checkEntityInternal(entity);
@@ -159,7 +154,7 @@ public class FlowControllerV2 {
     }
 
     @PutMapping("/rule/{id}")
-    @AuthAction(AuthService.PrivilegeType.WRITE_RULE)
+    @AuthAction(PrivilegeType.WRITE_RULE)
 
     public Result<FlowRuleEntity> apiUpdateFlowRule(@PathVariable("id") Long id,
                                                     @RequestBody FlowRuleEntity entity) {

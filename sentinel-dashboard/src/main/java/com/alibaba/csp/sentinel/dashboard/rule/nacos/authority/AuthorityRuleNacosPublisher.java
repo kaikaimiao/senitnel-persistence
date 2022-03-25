@@ -16,17 +16,17 @@
 package com.alibaba.csp.sentinel.dashboard.rule.nacos.authority;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.AuthorityRuleEntity;
-import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.DegradeRuleEntity;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRulePublisher;
 import com.alibaba.csp.sentinel.dashboard.rule.nacos.NacosConfigUtil;
-import com.alibaba.csp.sentinel.datasource.Converter;
+import com.alibaba.csp.sentinel.slots.block.authority.AuthorityRule;
 import com.alibaba.csp.sentinel.util.AssertUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.api.config.ConfigService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @description: 推送授权规则
@@ -38,7 +38,8 @@ public class  AuthorityRuleNacosPublisher implements DynamicRulePublisher<List<A
 
     @Autowired
     private ConfigService configService;
-
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public void publish(String app, List<AuthorityRuleEntity> rules) throws Exception {
@@ -46,7 +47,8 @@ public class  AuthorityRuleNacosPublisher implements DynamicRulePublisher<List<A
         if (rules == null) {
             return;
         }
+        List<AuthorityRule> collect = rules.stream().map(item -> item.getRule()).collect(Collectors.toList());
         configService.publishConfig(app + NacosConfigUtil.AUTHORITY_DATA_ID_POSTFIX,
-            NacosConfigUtil.GROUP_ID, JSON.toJSONString(rules));
+            NacosConfigUtil.GROUP_ID, objectMapper.writeValueAsString(collect));
     }
 }

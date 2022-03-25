@@ -15,13 +15,13 @@
  */
 package com.alibaba.csp.sentinel.dashboard.rule.nacos.system;
 
-import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.AuthorityRuleEntity;
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.SystemRuleEntity;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRuleProvider;
 import com.alibaba.csp.sentinel.dashboard.rule.nacos.NacosConfigUtil;
 import com.alibaba.csp.sentinel.util.StringUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.api.config.ConfigService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +39,8 @@ public class  SystemRuleNacosProvider implements DynamicRuleProvider<List<System
     @Autowired
     private ConfigService configService;
 
-
+    @Autowired
+    private ObjectMapper objectMapper;
     @Override
     public List<SystemRuleEntity> getRules(String appName) throws Exception {
         String rules = configService.getConfig(appName + NacosConfigUtil.SYSTEM_DATA_ID_POSTFIX,
@@ -47,6 +48,6 @@ public class  SystemRuleNacosProvider implements DynamicRuleProvider<List<System
         if (StringUtil.isEmpty(rules)) {
             return new ArrayList<>();
         }
-        return JSON.parseArray(rules, SystemRuleEntity.class);
+        return objectMapper.readValue(rules,new TypeReference<List<SystemRuleEntity>>() { });
     }
 }

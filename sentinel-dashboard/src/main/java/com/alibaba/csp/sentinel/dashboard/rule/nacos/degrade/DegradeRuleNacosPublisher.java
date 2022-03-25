@@ -16,13 +16,11 @@
 package com.alibaba.csp.sentinel.dashboard.rule.nacos.degrade;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.DegradeRuleEntity;
-import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRulePublisher;
 import com.alibaba.csp.sentinel.dashboard.rule.nacos.NacosConfigUtil;
-import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.csp.sentinel.util.AssertUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.api.config.ConfigService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +37,8 @@ public class  DegradeRuleNacosPublisher implements DynamicRulePublisher<List<Deg
     @Autowired
     private ConfigService configService;
 
-
+    @Autowired
+    private ObjectMapper objectMapper;
     @Override
     public void publish(String app, List<DegradeRuleEntity> rules) throws Exception {
         AssertUtil.notEmpty(app, "app name cannot be empty");
@@ -47,6 +46,6 @@ public class  DegradeRuleNacosPublisher implements DynamicRulePublisher<List<Deg
             return;
         }
         configService.publishConfig(app + NacosConfigUtil.DEGRADE_DATA_ID_POSTFIX,
-            NacosConfigUtil.GROUP_ID, JSON.toJSONString(rules));
+            NacosConfigUtil.GROUP_ID, objectMapper.writeValueAsString(rules));
     }
 }
