@@ -1,7 +1,17 @@
 #sentinel 持久化nacos 版本
 ##1. 下载源码   打包运行 sentinel-dashboard 模块 
-
-##2. 在springboot bootstrap.yaml增加配置
+##2. 客户端引入maven依赖
+```
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-datasource-nacos</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+        </dependency>
+```        
+##3. 在springboot bootstrap.yaml增加配置
 ```
 spring:
   cloud:
