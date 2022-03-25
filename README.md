@@ -1,5 +1,5 @@
 #sentinel 持久化nacos 版本
-##1. 打包运行 server端
+##1. 下载源码   打包运行 sentinel-dashboard 模块 
 
 ##2. 在springboot bootstrap.yaml增加配置
 ```
